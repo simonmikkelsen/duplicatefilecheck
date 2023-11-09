@@ -7,19 +7,19 @@ class BlockFileHash:
     self.blockSize = blockSize
     self.blockCount = blockCount
 
-  def __md5(self, fname: Path) -> str:
+  def __getHashCodeAllFile(self, path: Path) -> str:
     hash_md5 = hashlib.md5()
-    with open(fname, 'rb') as f:
+    with open(path, 'rb') as f:
         for chunk in iter(lambda: f.read(4096), b''):
             hash_md5.update(chunk)
     return hash_md5.hexdigest()
 
-  def __md5Parts(self, stat: os.stat_result, filePath: Path) -> str:
+  def __getHashCodeForBlocks(self, stat: os.stat_result, path: Path) -> str:
       hash_md5 = hashlib.md5()
       fileSize = stat.st_size
       readBlockStartOffset = int(round(fileSize / self.blockCount))
       readChunk = min(4096, self.blockSize)
-      with open(filePath, "rb") as f:
+      with open(path, "rb") as f:
         for startOffset in range(0, fileSize, readBlockStartOffset):
             f.seek(startOffset)
             readThisTime = 0
@@ -33,15 +33,9 @@ class BlockFileHash:
                   break # Break the inner for loop
       return hash_md5.hexdigest()
 
-  def __getHashCodeAllFile(self, path: Path) -> str:
-    return self.__md5(path)
-
-  def __getHashCodeForBlocks(self, stat: os.stat_result, path: Path) -> str:
-    return self.__md5Parts(self.blockSize, self.blockCount, stat, path)
-
   def getHashcode(self, path: Path) -> str:
     stat = path.stat()
     if (stat.st_size <= self.blockSize * self.blockCount):
       return self.__getHashCodeAllFile(path)
     else:
-      return self.__getHashCodeForBlocks(self.blockSize, self.blockCount, stat, path)
+      return self.__getHashCodeForBlocks(stat, path)
