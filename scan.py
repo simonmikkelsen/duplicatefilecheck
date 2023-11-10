@@ -47,9 +47,12 @@ for indexpath in pathList:
   for (root,dirs,files) in os.walk(indexpath, topdown=False):
     for file in files:
       path = Path(root, file)
-      if (path.is_file()):
-        stat = path.stat()
-        if (stat.st_size >= minSize):
-          hash = filehash.getHashcode(path)
-          writer.persistHash(hash, path, stat)
-          print(hash + ' ' + str(path.absolute()))
+      try:
+        if (path.is_file()):
+          stat = path.stat()
+          if (stat.st_size >= minSize):
+            hash = filehash.getHashcode(path)
+            writer.persistHash(hash, path, stat)
+            print(hash + ' ' + str(path.absolute()))
+      except PermissionError as e:
+        print('Ignore ' + str(path) + ': ' + str(e))
