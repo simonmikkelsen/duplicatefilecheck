@@ -55,4 +55,5 @@ for indexpath in pathList:
             writer.persistHash(hash, path, stat)
             print(hash + ' ' + str(path.absolute()))
       except PermissionError as e:
+        # todo: Handle more errors and put them in a separate log file.
         print('Ignore ' + str(path) + ': ' + str(e))
