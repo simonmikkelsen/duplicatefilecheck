@@ -3,7 +3,8 @@ from pathlib import Path
 import argparse
 
 from blockfilehash import BlockFileHash
-from filehashwriter import FileHashWriter
+from hashedfilehandler.directoryhandler import DirectoryHandler
+from hashedfilehandler.hashfilewriter import HashedFileWriter
 
 parser = argparse.ArgumentParser(description ='Index files to find duplicates.')
  
@@ -18,7 +19,7 @@ args = parser.parse_args()
 
 blockSize = 50*4096
 blockCount = 2
-basepath = args.hashes
+basepath = Path(args.hashes)
 
 if len(args.path) > 0:
   pathList = args.path
@@ -33,7 +34,6 @@ def sizeToInt(size: str) -> int:
   # Split the string into the number and the letter parts
   number = float(size[:-1])
   letter = size[-1].lower()
-  # Check if the letter is valid
   if letter not in letter_values:
     raise ValueError("Invalid size postfix: " + letter)
   # Multiply the number by the value of the letter and return it as an integer
@@ -41,19 +41,23 @@ def sizeToInt(size: str) -> int:
 
 minSize = sizeToInt(args.minsize)
 filehash = BlockFileHash(blockSize, blockCount)
-writer = FileHashWriter(Path(basepath))
+filehandlers = [HashedFileWriter(basepath), DirectoryHandler()]
 
 for indexpath in pathList:
-  for (root,dirs,files) in os.walk(indexpath, topdown=False):
+  [ handler.newRootPath() for handler in filehandlers ]
+  for root, dirs, files in os.walk(indexpath, topdown=True):
+    dirs.sort() #Ensure we always traverse dirs in the same order.
+    [ handler.directory(Path(root)) for handler in filehandlers ]
     for file in files:
       path = Path(root, file)
       try:
-        if (path.is_file()):
-          stat = path.stat()
-          if (stat.st_size >= minSize):
-            hash = filehash.getHashcode(path)
-            writer.persistHash(hash, path, stat)
-            print(hash + ' ' + str(path.absolute()))
+        if (not path.is_file()):
+          continue
+        stat = path.stat()
+        if (stat.st_size >= minSize):
+          hash = filehash.getHashcode(path)
+          [ handler.hash(path, stat.st_size, hash) for handler in filehandlers ]
+          print(hash + ' ' + str(path.absolute()))
       except PermissionError as e:
         # todo: Handle more errors and put them in a separate log file.
         print('Ignore ' + str(path) + ': ' + str(e))
