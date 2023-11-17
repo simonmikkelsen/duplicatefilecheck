@@ -13,3 +13,7 @@ class HashedFileHandler(ABC):
   @abstractmethod
   def newRootPath(self) -> None:
     pass
+
+  @abstractmethod
+  def finish(self) -> None:
+    pass

@@ -1,12 +1,12 @@
 import hashlib
 from pathlib import Path
-import sys
 
 from hashedfilehandler.hashedfilehandler import HashedFileHandler
 
 class DirectoryHandler(HashedFileHandler):
-  def __init__(self) -> None:
+  def __init__(self, writer:HashedFileHandler) -> None:
     self.newRootPath()
+    self.writer = writer
 
   def newRootPath(self) -> None:
     self.hash_md5 = hashlib.md5()
@@ -31,7 +31,7 @@ class DirectoryHandler(HashedFileHandler):
       # A new sub directory of ours is called: Replace our child.
       if self.child != None:
         self.child.finish()
-      self.child = DirectoryHandler()
+      self.child = DirectoryHandler(self.writer)
       self.child.directory(dir, level)
     elif level > self.level:
       # When a new sub directory is called
@@ -53,6 +53,4 @@ class DirectoryHandler(HashedFileHandler):
       self.child.hash(file, filesize, hash)
 
   def finish(self):
-    #print('finish: ' + str(self.path) + ' level ' + str(self.level) + ' (' + str(self.totalSize) + ') ' + self.hash_md5.hexdigest())
-    #todo: persist
-    pass
+    self.writer.hash(self.path, self.totalSize, self.hash_md5.hexdigest())

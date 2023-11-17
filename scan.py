@@ -41,7 +41,9 @@ def sizeToInt(size: str) -> int:
 
 minSize = sizeToInt(args.minsize)
 filehash = BlockFileHash(blockSize, blockCount)
-filehandlers = [HashedFileWriter(basepath), DirectoryHandler()]
+
+hashedFileWriter = HashedFileWriter(basepath)
+filehandlers = [hashedFileWriter, DirectoryHandler(hashedFileWriter)]
 
 for indexpath in pathList:
   [ handler.newRootPath() for handler in filehandlers ]
@@ -61,3 +63,4 @@ for indexpath in pathList:
       except PermissionError as e:
         # todo: Handle more errors and put them in a separate log file.
         print('Ignore ' + str(path) + ': ' + str(e))
+[ handler.finish() for handler in filehandlers ]

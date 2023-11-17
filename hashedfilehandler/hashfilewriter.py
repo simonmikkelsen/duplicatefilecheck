@@ -17,4 +17,6 @@ class HashedFileWriter(HashedFileHandler):
 
   def newRootPath(self) -> None:
     pass
- 
+
+  def finish(self) -> None:
+    pass
