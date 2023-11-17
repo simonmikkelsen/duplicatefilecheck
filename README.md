@@ -1,3 +1,10 @@
+EXPERIMENTAL
+============
+This script is very new and should be considered experimental. Use with causion!
+
+Find duplicate files and folders in huge file systems
+=====================================================
+
 Python script that will end up being able to find duplicate files and folders in a file system with a huge amount of files including large files.
 
 It will first run a scan that calculates a hash code for each file. Files above a certain size can optionally be set to not hash all of the file
