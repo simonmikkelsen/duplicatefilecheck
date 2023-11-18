@@ -1,3 +1,4 @@
+import hashlib
 import os
 from pathlib import Path
 import argparse
@@ -15,11 +16,15 @@ parser.add_argument('--hashes', dest='hashes', action='store', default='hashes.t
                     help='File to store hashes. The specified folder must exist.')
 parser.add_argument('-m', '--min-size', dest='minsize', action='store', default='1',
                     help='Minimum file size to hash. Default 1 byte (ignore empty files). Postfix with k, m, g, t, e, p, e, z or y for KiB, MiB, GiB etc.')
+parser.add_argument('-n', '--naive', dest='naive', action='store_true', default=False,
+                    help='When given files that should be ignored due to size are hashed based on their file size and name (without path). '
+                    'This allows for a reasonable detection of duplicate directories, just much faster.')
 args = parser.parse_args()
 
 blockSize = 50*4096
 blockCount = 2
 hashFilePath = Path(args.hashes)
+naive:bool = args.naive
 
 if len(args.path) > 0:
   pathList = args.path
@@ -60,6 +65,10 @@ for indexpath in pathList:
           hash = filehash.getHashcode(path)
           [ handler.hash(path, stat.st_size, hash) for handler in filehandlers ]
           print(hash + ' ' + str(path.absolute()))
+        elif naive:
+          hash = filehash.getNaiveHashcode(path, stat.st_size)
+          [ handler.hash(path, stat.st_size, hash) for handler in filehandlers ]
+
       except PermissionError as e:
         # todo: Handle more errors and put them in a separate log file.
         print('Ignore ' + str(path) + ': ' + str(e))

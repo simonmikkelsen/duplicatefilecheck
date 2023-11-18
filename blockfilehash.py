@@ -15,7 +15,7 @@ class BlockFileHash:
     return hash_md5.hexdigest()
 
   def __getHashCodeForBlocks(self, stat: os.stat_result, path: Path) -> str:
-      hash_md5 = hashlib.md5()
+      hash_md5 = hashlib.md5(usedforsecurity=False)
       fileSize = stat.st_size
       readBlockStartOffset = int(round(fileSize / self.blockCount))
       readChunk = min(4096, self.blockSize)
@@ -32,6 +32,10 @@ class BlockFileHash:
                 if (readThisTime >= self.blockSize):
                   break # Break the inner for loop
       return hash_md5.hexdigest()
+
+  def getNaiveHashcode(self, path:Path, st_size:int) -> str:
+     tohash = path.name + str(st_size)
+     return hashlib.md5(tohash.encode(), usedforsecurity=False).hexdigest()
 
   def getHashcode(self, path: Path) -> str:
     stat = path.stat()
