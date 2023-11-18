@@ -11,15 +11,15 @@ parser = argparse.ArgumentParser(description ='Index files to find duplicates.')
 parser.add_argument('-p', '--path', dest ='path', 
                     action ='append',
                     default = [], help ='Paths to index. Specify multiple times for more paths.')
-parser.add_argument('--hashes', dest='hashes', action='store', default='hashes',
-                    help='Path to store hashes.')
+parser.add_argument('--hashes', dest='hashes', action='store', default='hashes.txt',
+                    help='File to store hashes. The specified folder must exist.')
 parser.add_argument('-m', '--min-size', dest='minsize', action='store', default='1',
                     help='Minimum file size to hash. Default 1 byte (ignore empty files). Postfix with k, m, g, t, e, p, e, z or y for KiB, MiB, GiB etc.')
 args = parser.parse_args()
 
 blockSize = 50*4096
 blockCount = 2
-basepath = Path(args.hashes)
+hashFilePath = Path(args.hashes)
 
 if len(args.path) > 0:
   pathList = args.path
@@ -42,7 +42,7 @@ def sizeToInt(size: str) -> int:
 minSize = sizeToInt(args.minsize)
 filehash = BlockFileHash(blockSize, blockCount)
 
-hashedFileWriter = HashedFileWriter(basepath)
+hashedFileWriter = HashedFileWriter(hashFilePath)
 filehandlers = [hashedFileWriter, DirectoryHandler(hashedFileWriter)]
 
 for indexpath in pathList:
