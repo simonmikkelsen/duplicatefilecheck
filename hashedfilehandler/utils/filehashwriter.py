@@ -7,10 +7,15 @@ class FileHashWriter:
 
     def persistHash(self, hash:str, filePath: Path, filesize:int) -> None:
         firstChars = hash[0:2]
-        with open(Path(self.basePath, firstChars + '.txt'), 'a') as f:
-            f.write(hash)
-            f.write(' ')
-            f.write(str(filesize))
-            f.write(' ')
-            f.write(str(filePath.absolute()))
-            f.write('\n')
+        try:
+          with open(Path(self.basePath, firstChars + '.txt'), 'a') as f:
+              f.write(hash)
+              f.write(' ')
+              f.write(str(filesize))
+              f.write(' ')
+              f.write(str(filePath.absolute()))
+              f.write('\n')
+        except UnicodeEncodeError as e:
+          # Todo handle properly.
+          #print('Ignore ' + str(filePath.) + ' (unicode): ' + str(e))
+          pass

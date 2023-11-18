@@ -63,4 +63,7 @@ for indexpath in pathList:
       except PermissionError as e:
         # todo: Handle more errors and put them in a separate log file.
         print('Ignore ' + str(path) + ': ' + str(e))
+      except UnicodeEncodeError as e:
+        #print('Ignore ' + str(path) + ' (unicode): ' + str(e))
+        pass
 [ handler.finish() for handler in filehandlers ]
