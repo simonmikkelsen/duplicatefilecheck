@@ -29,6 +29,12 @@ Step 2 - list
 =============
 Run list.py. It will print all files which might be duplicates along with file size and separate each group with an empty line.
 
+Step 3 - truncate
+=================
+Run truncate.py on the file produced by list.py. It will print the lines of all files that exists. If you have deleted whole folders
+the file may have a lot of files that are already deleted and this will clean it up.
+This saves you from a completely new scan again.
+
 Warning
 =======
 Because scan.py does not read the entire file it is very fast. But there is a risk that certain files are duplicate in the areas the tool reads but not in otheres. You should therefor use another tool to compare files before deleting them or know your files well enough to know what might be duplicate and not.
